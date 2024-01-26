@@ -53,39 +53,67 @@ const average = (arr) =>
 const KEY = "2367ba51";
 
 export default function App() {
+  const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const query = "interstellar";
+  const tempQuery = "interstellar";
+
+  /*
+  useEffect(function() {
+    console.log('After initial render')
+  }, [])
+
+  useEffect(function() {
+    console.log('After render')
+  })
+
+  useEffect(function() {
+    console.log('D')
+  }, [query])
+
+  console.log('During render')
+  */
 
   useEffect(function() {
     async function fetchMovies() {
-      try {setIsLoading(true);
-      const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`);
+      try {
+        setIsLoading(true);
 
-      if(!res.ok) 
-        throw new Error("Something went wring with fetch movies")
+        setError('')
 
-        const data = await res.json()
-        if (data.Response === "False") throw new Error ('Movie not found')
+        const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`);
 
-      setMovies(data.Search)
-    } catch (err) {
-        console.log(err.message);
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
+        if(!res.ok) 
+          throw new Error("Something went wrong with fetching movies")
+
+          const data = await res.json()
+          if (data.Response === "False") throw new Error ('Movie not found')
+
+        setMovies(data.Search)
+      } catch (err) {
+          console.log(err.message);
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
       }
-    }
-    fetchMovies();
-    }, []);
+
+      if(query.length < 3) {
+        setMovies([]);
+        setError('');
+        return;
+      }
+
+      fetchMovies();
+      }, [query]);
 
   return (
     <>
       <NavBar>
         <Logo />
-        <Search />
+        <Search query={query} setQuery={setQuery}/>
         <NumResult movies={movies} />
       </NavBar>
       <Main>
@@ -132,8 +160,7 @@ function Logo() {
   );
 }
 
-function Search() {
-  const [query, setQuery] = useState("");
+function Search({query, setQuery}) {
 
   return (
     <input
