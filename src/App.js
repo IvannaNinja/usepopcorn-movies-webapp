@@ -1,6 +1,7 @@
+import React from "react";
 import { useEffect, useState } from "react";
 import StarRating from "./StarRating";
-import { u } from "tar";
+// import { u } from "tar";
 
 /*
 const tempMovieData = [
